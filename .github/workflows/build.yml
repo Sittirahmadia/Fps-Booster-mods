@@ -1,0 +1,45 @@
+name: Build FPS Booster Mod
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Grant execute permission to gradlew
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew build --no-daemon
+
+      - name: Upload mod JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: FpsBooster-1.21
+          path: build/libs/*[!-sources].jar
+          if-no-files-found: error
+
+      - name: Upload sources JAR (optional)
+        uses: actions/upload-artifact@v4
+        with:
+          name: FpsBooster-1.21-sources
+          path: build/libs/*-sources.jar
+          if-no-files-found: warn
